@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
     <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
     <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </head>
 <body>
     <div class="container">
-        <input type='file' accept='text/plain' onchange='openFile(event)'>
+        <input type='file' accept='text/plain' onchange='openFile()'>
         <div class="btn-group">
             <button type="button" class="btn btn-default" onclick="newWindow()">新建</button>
             <!-- <button type="button" class="btn btn-default" >打开</button> -->
@@ -23,13 +24,13 @@
 
 
 <script type="text/javascript">
-    var w_t = 195
-    var h_t = 40
-    var w_l = 16   
-    var index = 0
-    var input_size = 13
-    var input_style = "font-size:22px;border-radius: 5px;"
-    var node0 = {}
+    const w_t = 195;
+    const h_t = 40;
+    const w_l = 16;
+    let index = 0;
+    const input_size = 13;
+    const input_style = "font-size:22px;border-radius: 5px;";
+    let node0 = {};
 
 
     init()
@@ -55,165 +56,166 @@
     }
 
     function newNode(text,father) {
-        var nodeId ='node'+ getIndex()
-        var node = {
-            id:nodeId,
-            father : father,
-            index:0,
-            x : 0,
-            y : 0,
-            w : w_t,
-            h : h_t,
-            t : {
-                id:nodeId+'t',
+        let svg;
+        const nodeId = 'node' + getIndex();
+        const node = {
+            id: nodeId,
+            father: father,
+            index: 0,
+            x: 0,
+            y: 0,
+            w: w_t,
+            h: h_t,
+            t: {
+                id: nodeId + 't',
                 txt: text,
-                x : 0,
-                y : 0,
-                w : w_t,
-                h:h_t,
-                setX : function (dx) {
+                x: 0,
+                y: 0,
+                w: w_t,
+                h: h_t,
+                setX: function (dx) {
                     this.x = dx
                 },
-                setY : function (dy) {
+                setY: function (dy) {
                     this.y = dy
                     node.updateChildPoint()
                 },
-                setW : function (dw) {
+                setW: function (dw) {
                     this.w = dw
                     node.resize()
                 },
-                setH : function (dh) {
+                setH: function (dh) {
                     this.h = dh
                     node.updateChildPoint()
                 }
             },
-            c : {
-                id:nodeId+'c',
-                x : w_t + w_l,
-                y : 0,
-                w : 0,
-                h : 0,
-                child : [],
-                setW : function (dw) {
+            c: {
+                id: nodeId + 'c',
+                x: w_t + w_l,
+                y: 0,
+                w: 0,
+                h: 0,
+                child: [],
+                setW: function (dw) {
                     this.w = dw
                     node.resize()
                     node.reLayout()
                 },
-                setH : function (dh) {
-                    this.h = dh  
+                setH: function (dh) {
+                    this.h = dh
                     node.resize()
-                    node.reLayout()                           
+                    node.reLayout()
                 },
-                resize : function () {
+                resize: function () {
                     let sh = 0
                     let max_w = 0
                     for (var i = 0; i < this.child.length; i++) {
-                        if(this.child[i].w>max_w){
+                        if (this.child[i].w > max_w) {
                             max_w = this.child[i].w
                         }
                         sh += this.child[i].h
                     }
-                    this.setW(max_w) 
+                    this.setW(max_w)
                     this.setH(sh)
                     //node.resize()
-                    //node.reLayout() 
+                    //node.reLayout()
                 },
-                reLayout : function () {
+                reLayout: function () {
                     for (var i = 0; i < this.child.length; i++) {
                         this.child[i].index = i
-                        if(i == 0){
+                        if (i == 0) {
                             this.child[i].setY(0)
-                        }else{
-                            this.child[i].setY(this.child[i-1].y + this.child[i-1].h) 
-                        }                          
+                        } else {
+                            this.child[i].setY(this.child[i - 1].y + this.child[i - 1].h)
+                        }
                     }
                 }
             },
-            l : {
-                id:nodeId+'l',
-                fPoint:{
-                    x:0,
-                    y:0
+            l: {
+                id: nodeId + 'l',
+                fPoint: {
+                    x: 0,
+                    y: 0
                 },
-                cPoint:{
-                    x:0,
-                    y:0
+                cPoint: {
+                    x: 0,
+                    y: 0
                 },
-                points:"0,0 0,0",
-                setFpoint : function (point) {
+                points: "0,0 0,0",
+                setFpoint: function (point) {
                     this.fPoint = point
-                    this.points = getPointStr(this.fPoint,this.cPoint)
+                    this.points = getPointStr(this.fPoint, this.cPoint)
                 },
-                setCpoint : function (point) {
+                setCpoint: function (point) {
                     this.cPoint = point
-                    this.points = getPointStr(this.fPoint,this.cPoint)
+                    this.points = getPointStr(this.fPoint, this.cPoint)
                     //console.log(this.points)
                 },
-                updateCPoint : function () {
+                updateCPoint: function () {
                     //alert(1111)
-                    if(node.father){
+                    if (node.father) {
                         let point = {}
                         point.x = node.father.c.x
-                        point.y = node.y + node.h/2
+                        point.y = node.y + node.h / 2
                         this.setCpoint(point)
                         //console.log("x " + node.father.c.x)
                         //console.log(point)
                     }
                 },
-                updateFPoint : function () {
-                    if(node.father){
+                updateFPoint: function () {
+                    if (node.father) {
                         let point = {}
-                        point.x = node.father.t.x+node.father.t.w 
-                        point.y = node.father.t.y + node.father.t.h/2
+                        point.x = node.father.t.x + node.father.t.w
+                        point.y = node.father.t.y + node.father.t.h / 2
                         this.setFpoint(point)
-                    }                   
+                    }
                 }
             },
-            setX : function (dx) {
+            setX: function (dx) {
                 this.x = dx
             },
-            setY : function (dy) {
+            setY: function (dy) {
                 this.y = dy
                 this.l.updateCPoint()
             },
-            setW : function (dw) {
+            setW: function (dw) {
                 this.w = dw
-                if(this.father){
+                if (this.father) {
                     this.father.c.reLayout()
                     this.father.c.resize()
                 }
             },
-            setH : function (dh) {
+            setH: function (dh) {
                 this.h = dh
-                if(this.father){
+                if (this.father) {
                     this.father.c.reLayout()
                     this.father.c.resize()
-                    this.l.updateCPoint()                 
+                    this.l.updateCPoint()
                 }
             },
-            resize : function () {
-                this.setW(this.t.w + w_l + this.c.w) 
-                this.setH(Math.max(this.t.h,this.c.h))              
+            resize: function () {
+                this.setW(this.t.w + w_l + this.c.w)
+                this.setH(Math.max(this.t.h, this.c.h))
             },
-            updateChildPoint : function () {
-                for (var i = 0; i < this.c.child.length; i++) {
-                    this.c.child[i].l.updateFPoint()                
+            updateChildPoint: function () {
+                for (let i = 0; i < this.c.child.length; i++) {
+                    this.c.child[i].l.updateFPoint()
                 }
             },
-            reLayout : function () {
-                this.t.setY(this.c.h/2 - this.t.h/2 )          
+            reLayout: function () {
+                this.t.setY(this.c.h / 2 - this.t.h / 2)
             },
-            addNode : function (txt) {
-                var node = newNode(txt,this)
+            addNode: function (txt) {
+                const node = newNode(txt, this);
                 this.c.child.push(node)
                 this.c.resize()
                 this.c.reLayout()
                 return node
             },
-            addBrother : function (txt) {
-                if(father){
-                    var node = newNode(txt,this.father )
-                    this.father.c.child.splice(this.index+1,0,node)
+            addBrother: function (txt) {
+                if (father) {
+                    const node = newNode(txt, this.father);
+                    this.father.c.child.splice(this.index + 1, 0, node)
                     //console.log(this.index)
                     //console.log(this.father.c.child)
                     this.father.c.resize()
@@ -222,24 +224,24 @@
                 }
                 return this.id
             },
-            remove : function (c_index) {
-                if(c_index != -1){       
-                    var list=document.getElementById(this.c.id);
-                    list.removeChild(list.childNodes[c_index]);  
-                    var l=document.getElementById(this.c.child[c_index].l.id);
+            remove: function (c_index) {
+                if (c_index != -1) {
+                    const list = document.getElementById(this.c.id);
+                    list.removeChild(list.childNodes[c_index]);
+                    const l = document.getElementById(this.c.child[c_index].l.id);
                     l.remove()
-                    this.c.child.splice(c_index,1)
+                    this.c.child.splice(c_index, 1)
                     this.c.resize()
                     this.c.reLayout()
                     return this.id
-                }else{
+                } else {
                     //this.c.child={}
                     this.c.resize()
                     this.c.reLayout()
                     return this.id
                 }
             },
-            export : function () {
+            export: function () {
                 let data = {}
                 data.txt = this.t.txt
                 data.child = []
@@ -248,10 +250,10 @@
                 }
                 return data
             }
-        }
+        };
 
         if(father == null){
-            var svg = document.getElementById('svg1');
+            svg = document.getElementById('svg1');
             addUI(svg,node)
         }else{
             //alert(node.id)
@@ -263,7 +265,7 @@
             //     x : father.c.x+node.x,
             //     y : father.c.y+node.y+(node.h)/2,
             // }
-            var svg = document.getElementById(father.id+'c');
+            svg = document.getElementById(father.id+'c');
             addUI(svg,node)
         }
 
@@ -289,7 +291,7 @@
     }
 
     function defineProperty(obj,op,prop) {
-        var vaule = obj[prop]
+        let vaule = obj[prop];
         Object.defineProperty(obj,prop,{
             get:function(){
                 return vaule
@@ -305,7 +307,7 @@
     function bind(obj,prop,value) {
         //console.log(obj.id+" "+prop+":"+value)
         try {
-            var svg = document.getElementById(obj.id); 
+            const svg = document.getElementById(obj.id);
             if(prop == 'w'){     
                 svg.setAttribute('width',value)
             }else if(prop == 'h'){
@@ -324,12 +326,12 @@
     }
 
     function addUI(container,node) {
-        var g = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
-        var t = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject')
-        var input = document.createElement('input')
-        var c = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
-        
-        var points = ""
+        const g = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        const t = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
+        const input = document.createElement('input');
+        const c = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+
+        const points = "";
         if(node.father){
             var l = document.createElementNS('http://www.w3.org/2000/svg', 'polyline')
             var f = document.getElementById(node.father.id);
@@ -412,7 +414,7 @@
 
     //保存
     function save() {
-        var data = node0.export()
+        const data = node0.export();
         //alert(JSON.stringify(data))
         saveShareContent(JSON.stringify(data),data.txt+'.txt')
     }
@@ -433,8 +435,8 @@
 
     //打卡文件
     function openFile(event){
-        var input = event.target;
-        var reader = new FileReader();
+        const input = event.target;
+        const reader = new FileReader();
         reader.onload = function() {
             if(reader.result) {
                 //显示文件内容               
