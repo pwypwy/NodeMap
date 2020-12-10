@@ -217,24 +217,46 @@
 
         container.appendChild(n)
 
+        n.onclick = function(e){
+        	console.log(e.offsetX)
+        	n.rx = e.offsetX * 1.6
+        	n.rY = e.offsetY * 1.6
+        	//n.style.border = '2px solid #200000' 
+        }
+
+        n.onfocus = function(e){
+        	console.log(e)
+        	//console.log(e.clientX+':'+e.clientY)
+        	n.style.border = '2px solid #200000' 
+        }
+
+        n.blur = function(e){
+        	console.log(e)
+        	n.style.border = '2px solid #000000' 
+        }
+
+
         n.ondragstart = function(e) {
-            // console.log('开始');
-            // console.log(e)
+            console.log('开始');
+            console.log(e)
         }
 
         n.ondrag = function(e){
             console.log(`${e.offsetX} ${e.offsetY}`)
             // console.log('结束')
-            // node.x  = Number(node.x) + Number(e.offsetX) -15
-            // node.y = Number(node.y) + Number(e.offsetY) -15
+            node.x  = -Number(n.rx) + Number(node.x) + Number(e.offsetX) *1.6
+            node.y = -Number(n.rY)+ Number(node.y) + Number(e.offsetY)*1.6
+            n.setAttribute('x',node.x)
+        	n.setAttribute('y',node.y)
             //renderAll()
         }
 
         n.ondragend  = function(e) {
             console.log(e)
             console.log('结束')
-            node.x  = Number(node.x) + Number(e.offsetX) *1.6
-            node.y = Number(node.y) + Number(e.offsetY)*1.6
+            node.x  = -Number(n.rx) + Number(node.x) + Number(e.offsetX) *1.6
+            node.y = -Number(n.rY)+ Number(node.y) + Number(e.offsetY)*1.6
+
             renderAll()
         }
 
@@ -337,6 +359,13 @@
     }
 
     //自动对齐 预览
+    function align() {
+    	
+    }
+
+    function zoom(argument) {
+    	// body...
+    }
 
 </script>
 </body>
