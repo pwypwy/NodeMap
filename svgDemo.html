@@ -8,7 +8,7 @@
 </head>
 <body>
     <div class="container">
-        <input type='file' accept='text/plain' onchange='openFile()'>
+        <input type='file' accept='text/plain' onchange='openFile(event)'>
         <div class="btn-group">
             <button type="button" class="btn btn-default" onclick="newWindow()">新建</button>
             <!-- <button type="button" class="btn btn-default" >打开</button> -->
@@ -56,61 +56,60 @@
     }
 
     function newNode(text,father) {
-        let svg;
-        const nodeId = 'node' + getIndex();
-        const node = {
-            id: nodeId,
-            father: father,
-            index: 0,
-            x: 0,
-            y: 0,
-            w: w_t,
-            h: h_t,
-            t: {
-                id: nodeId + 't',
+        var nodeId ='node'+ getIndex()
+        var node = {
+            id:nodeId,
+            father : father,
+            index:0,
+            x : 0,
+            y : 0,
+            w : w_t,
+            h : h_t,
+            t : {
+                id:nodeId+'t',
                 txt: text,
-                x: 0,
-                y: 0,
-                w: w_t,
-                h: h_t,
-                setX: function (dx) {
+                x : 0,
+                y : 0,
+                w : w_t,
+                h:h_t,
+                setX : function (dx) {
                     this.x = dx
                 },
-                setY: function (dy) {
+                setY : function (dy) {
                     this.y = dy
                     node.updateChildPoint()
                 },
-                setW: function (dw) {
+                setW : function (dw) {
                     this.w = dw
                     node.resize()
                 },
-                setH: function (dh) {
+                setH : function (dh) {
                     this.h = dh
                     node.updateChildPoint()
                 }
             },
-            c: {
-                id: nodeId + 'c',
-                x: w_t + w_l,
-                y: 0,
-                w: 0,
-                h: 0,
-                child: [],
-                setW: function (dw) {
+            c : {
+                id:nodeId+'c',
+                x : w_t + w_l,
+                y : 0,
+                w : 0,
+                h : 0,
+                child : [],
+                setW : function (dw) {
                     this.w = dw
                     node.resize()
                     node.reLayout()
                 },
-                setH: function (dh) {
+                setH : function (dh) {
                     this.h = dh
                     node.resize()
                     node.reLayout()
                 },
-                resize: function () {
+                resize : function () {
                     let sh = 0
                     let max_w = 0
                     for (var i = 0; i < this.child.length; i++) {
-                        if (this.child[i].w > max_w) {
+                        if(this.child[i].w>max_w){
                             max_w = this.child[i].w
                         }
                         sh += this.child[i].h
@@ -120,102 +119,102 @@
                     //node.resize()
                     //node.reLayout()
                 },
-                reLayout: function () {
+                reLayout : function () {
                     for (var i = 0; i < this.child.length; i++) {
                         this.child[i].index = i
-                        if (i == 0) {
+                        if(i == 0){
                             this.child[i].setY(0)
-                        } else {
-                            this.child[i].setY(this.child[i - 1].y + this.child[i - 1].h)
+                        }else{
+                            this.child[i].setY(this.child[i-1].y + this.child[i-1].h)
                         }
                     }
                 }
             },
-            l: {
-                id: nodeId + 'l',
-                fPoint: {
-                    x: 0,
-                    y: 0
+            l : {
+                id:nodeId+'l',
+                fPoint:{
+                    x:0,
+                    y:0
                 },
-                cPoint: {
-                    x: 0,
-                    y: 0
+                cPoint:{
+                    x:0,
+                    y:0
                 },
-                points: "0,0 0,0",
-                setFpoint: function (point) {
+                points:"0,0 0,0",
+                setFpoint : function (point) {
                     this.fPoint = point
-                    this.points = getPointStr(this.fPoint, this.cPoint)
+                    this.points = getPointStr(this.fPoint,this.cPoint)
                 },
-                setCpoint: function (point) {
+                setCpoint : function (point) {
                     this.cPoint = point
-                    this.points = getPointStr(this.fPoint, this.cPoint)
+                    this.points = getPointStr(this.fPoint,this.cPoint)
                     //console.log(this.points)
                 },
-                updateCPoint: function () {
+                updateCPoint : function () {
                     //alert(1111)
-                    if (node.father) {
+                    if(node.father){
                         let point = {}
                         point.x = node.father.c.x
-                        point.y = node.y + node.h / 2
+                        point.y = node.y + node.h/2
                         this.setCpoint(point)
                         //console.log("x " + node.father.c.x)
                         //console.log(point)
                     }
                 },
-                updateFPoint: function () {
-                    if (node.father) {
+                updateFPoint : function () {
+                    if(node.father){
                         let point = {}
-                        point.x = node.father.t.x + node.father.t.w
-                        point.y = node.father.t.y + node.father.t.h / 2
+                        point.x = node.father.t.x+node.father.t.w
+                        point.y = node.father.t.y + node.father.t.h/2
                         this.setFpoint(point)
                     }
                 }
             },
-            setX: function (dx) {
+            setX : function (dx) {
                 this.x = dx
             },
-            setY: function (dy) {
+            setY : function (dy) {
                 this.y = dy
                 this.l.updateCPoint()
             },
-            setW: function (dw) {
+            setW : function (dw) {
                 this.w = dw
-                if (this.father) {
+                if(this.father){
                     this.father.c.reLayout()
                     this.father.c.resize()
                 }
             },
-            setH: function (dh) {
+            setH : function (dh) {
                 this.h = dh
-                if (this.father) {
+                if(this.father){
                     this.father.c.reLayout()
                     this.father.c.resize()
                     this.l.updateCPoint()
                 }
             },
-            resize: function () {
+            resize : function () {
                 this.setW(this.t.w + w_l + this.c.w)
-                this.setH(Math.max(this.t.h, this.c.h))
+                this.setH(Math.max(this.t.h,this.c.h))
             },
-            updateChildPoint: function () {
-                for (let i = 0; i < this.c.child.length; i++) {
+            updateChildPoint : function () {
+                for (var i = 0; i < this.c.child.length; i++) {
                     this.c.child[i].l.updateFPoint()
                 }
             },
-            reLayout: function () {
-                this.t.setY(this.c.h / 2 - this.t.h / 2)
+            reLayout : function () {
+                this.t.setY(this.c.h/2 - this.t.h/2 )
             },
-            addNode: function (txt) {
-                const node = newNode(txt, this);
+            addNode : function (txt) {
+                var node = newNode(txt,this)
                 this.c.child.push(node)
                 this.c.resize()
                 this.c.reLayout()
                 return node
             },
-            addBrother: function (txt) {
-                if (father) {
-                    const node = newNode(txt, this.father);
-                    this.father.c.child.splice(this.index + 1, 0, node)
+            addBrother : function (txt) {
+                if(father){
+                    var node = newNode(txt,this.father )
+                    this.father.c.child.splice(this.index+1,0,node)
                     //console.log(this.index)
                     //console.log(this.father.c.child)
                     this.father.c.resize()
@@ -224,24 +223,24 @@
                 }
                 return this.id
             },
-            remove: function (c_index) {
-                if (c_index != -1) {
-                    const list = document.getElementById(this.c.id);
+            remove : function (c_index) {
+                if(c_index != -1){
+                    var list=document.getElementById(this.c.id);
                     list.removeChild(list.childNodes[c_index]);
-                    const l = document.getElementById(this.c.child[c_index].l.id);
+                    var l=document.getElementById(this.c.child[c_index].l.id);
                     l.remove()
-                    this.c.child.splice(c_index, 1)
+                    this.c.child.splice(c_index,1)
                     this.c.resize()
                     this.c.reLayout()
                     return this.id
-                } else {
+                }else{
                     //this.c.child={}
                     this.c.resize()
                     this.c.reLayout()
                     return this.id
                 }
             },
-            export: function () {
+            export : function () {
                 let data = {}
                 data.txt = this.t.txt
                 data.child = []
@@ -250,10 +249,10 @@
                 }
                 return data
             }
-        };
+        }
 
         if(father == null){
-            svg = document.getElementById('svg1');
+            var svg = document.getElementById('svg1');
             addUI(svg,node)
         }else{
             //alert(node.id)
@@ -265,7 +264,7 @@
             //     x : father.c.x+node.x,
             //     y : father.c.y+node.y+(node.h)/2,
             // }
-            svg = document.getElementById(father.id+'c');
+            var svg = document.getElementById(father.id+'c');
             addUI(svg,node)
         }
 
@@ -291,7 +290,7 @@
     }
 
     function defineProperty(obj,op,prop) {
-        let vaule = obj[prop];
+        var vaule = obj[prop]
         Object.defineProperty(obj,prop,{
             get:function(){
                 return vaule
@@ -307,8 +306,8 @@
     function bind(obj,prop,value) {
         //console.log(obj.id+" "+prop+":"+value)
         try {
-            const svg = document.getElementById(obj.id);
-            if(prop == 'w'){     
+            var svg = document.getElementById(obj.id);
+            if(prop == 'w'){
                 svg.setAttribute('width',value)
             }else if(prop == 'h'){
                 svg.setAttribute('height',value)
@@ -326,12 +325,12 @@
     }
 
     function addUI(container,node) {
-        const g = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        const t = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
-        const input = document.createElement('input');
-        const c = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        var g = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+        var t = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject')
+        var input = document.createElement('input')
+        var c = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
 
-        const points = "";
+        var points = ""
         if(node.father){
             var l = document.createElementNS('http://www.w3.org/2000/svg', 'polyline')
             var f = document.getElementById(node.father.id);
@@ -414,7 +413,7 @@
 
     //保存
     function save() {
-        const data = node0.export();
+        var data = node0.export()
         //alert(JSON.stringify(data))
         saveShareContent(JSON.stringify(data),data.txt+'.txt')
     }
@@ -435,8 +434,8 @@
 
     //打卡文件
     function openFile(event){
-        const input = event.target;
-        const reader = new FileReader();
+        var input = event.target;
+        var reader = new FileReader();
         reader.onload = function() {
             if(reader.result) {
                 //显示文件内容               
@@ -470,6 +469,38 @@
         }
         return node
     }
+
+    const elmnt = document.getElementById('svg1');
+    zoomElement(elmnt)
+    function zoomElement(elmnt) {
+        if (elmnt.addEventListener) {
+            // IE9, Chrome, Safari, Opera
+            elmnt.addEventListener('mousewheel', MouseWheelHandler, false);
+            // Firefox
+            elmnt.addEventListener('DOMMouseScroll', MouseWheelHandler, false);
+        }
+
+        let i = 1;
+        function MouseWheelHandler(e) {
+            // cross-browser wheel delta
+            const event = window.event || e; // old IE support
+            event.preventDefault();
+            const delta = Math.max(-1, Math.min(1, (event.wheelDelta || -event.detail)));
+            if (delta === 1) {
+                i += 0.2;
+                elmnt.style.transform = 'scale(' + i + ')';
+            } else if (delta === -1) {
+                if (i < 0.3) {
+                    i = 0.2;
+                } else {
+                    i -= 0.2;
+                }
+                elmnt.style.transform = 'scale(' + i + ')';
+            }
+            return false;
+        }
+    }
+
 </script>
 </body>
 </html>
