@@ -21,7 +21,7 @@
             font-family: Arial;
             border: 2px solid #000000;
             border-radius: 5px;
-            padding: 10px 10px;
+            padding: 5px 5px;
             width: 230px;
         }
     </style>
@@ -103,38 +103,32 @@
         {
           id:"1",
           data:{
-              name:"3344",
+              name:"采集url",
               script:"hello"
           },
           label:"name",
-          x:20,
-          y:50,
-          w:150,
-          h:80
+
+
         },
         {
           id:"2",
           data:{
-              name:"2222",
+              name:"采集页面数据",
               script:"hello22"
           },
           label:"name",
-          x:220,
-          y:50,
-          w:150,
-          h:80
+
+
         },
         {
           id:"3",
           data:{
-              name:"3333sadfasfsdfdsfasfsdfafdddddddddddddddddddddd",
+              name:"结构化处理",
               script:"hello33"
           },
           label:"name",
-          x:20,
-          y:250,
-          w:150,
-          h:80
+
+
         }
     ]
     const edges = [
@@ -152,22 +146,45 @@
         // },
     ]
 
-    const nodeMap = {}
-    for (const n of nodes) {
-        nodeMap[n.id] = n
-    }
+    let nodeYArray = [];
+    let nodeXArray = [];
+
+    let nodeMap = [];
+
 
     const container = document.getElementById('container');
+    autoLayout(nodes)
     //渲染
     renderAll()
+
     function renderAll() {
         container.innerHTML = ""
+
+        nodeXArray = []
+        nodeYArray = []
+        nodeMap = []
+
+        for (const node of nodes) {
+            nodeMap[node.id] = node
+            resize(node)
+            renderNode(container,node)
+            nodeXArray.push(node.x+node.w/2)
+            nodeYArray.push(node.y+node.h/2)
+        }
         for (const edge of edges) {
             renderEdge(container,edge)
         }
 
-        for (const node of nodes) {
-            renderNode(container,node)
+    }
+
+    //自动化设定线框大小
+    function resize(node) {
+        if(node.data[node.label].length <= 14){
+            node.w = 120
+            node.h = 120 * 0.612
+        }else{
+            node.w = 160
+            node.h = 160 * 0.612
         }
 
     }
@@ -179,6 +196,20 @@
     //编辑
 
     //自动化布局
+    function autoLayout(nodes) {
+        for (const node of nodes) {
+            if(node.x) return;
+            if(node.y) return;
+        }
+
+        let x = 0
+        for (const node of nodes) {
+            node.x = x
+            node.y = x*0.612
+            x+=160
+        }
+    }
+    
 
     /**
      * 渲染节点
@@ -189,7 +220,6 @@
         const n = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
         const t = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject')
 
-
         //n.setAttribute('z-index',node.w)
         n.setAttribute('width',node.w)
         n.setAttribute('height',node.h)
@@ -197,68 +227,95 @@
         n.setAttribute('y',node.y)
         n.setAttribute("draggable","true")
 
-
         t.setAttribute('width',node.w)
         t.setAttribute('height',node.h)
         t.setAttribute('x',"0")
         t.setAttribute('y',"0")
 
         const panel = document.createElement( 'div')
-        const body = document.createElement( 'div')
+        const label = document.createElement( 'h5')
+        panel.style.wordBreak = "break-all"
+        panel.style.textAlign = 'center'
         panel.setAttribute("class","content")
         // body.setAttribute("class","panel-body")
-        panel.innerHTML = node.data[node.label]
+        label.innerHTML = node.data[node.label]
+        panel.setAttribute("draggable","true")
         panel.style.width = node.w+"px"
         panel.style.height  = node.h+"px"
         onMenu(panel)
-       // panel.appendChild(body)
+        panel.appendChild(label)
         n.appendChild(t)
         t.appendChild(panel)
 
         container.appendChild(n)
 
         n.onclick = function(e){
-        	console.log(e.offsetX)
+        	//console.log(e.offsetX)
         	n.rx = e.offsetX * 1.6
         	n.rY = e.offsetY * 1.6
         	//n.style.border = '2px solid #200000' 
         }
 
         n.onfocus = function(e){
-        	console.log(e)
-        	//console.log(e.clientX+':'+e.clientY)
-        	n.style.border = '2px solid #200000' 
+        	//console.log(e)
+            panel.style.border = '2px solid #200000'
+
         }
 
         n.blur = function(e){
-        	console.log(e)
+        	//console.log(e)
         	n.style.border = '2px solid #000000' 
         }
 
-
-        n.ondragstart = function(e) {
-            console.log('开始');
-            console.log(e)
-        }
-
         n.ondrag = function(e){
-            console.log(`${e.offsetX} ${e.offsetY}`)
-            // console.log('结束')
-            node.x  = -Number(n.rx) + Number(node.x) + Number(e.offsetX) *1.6
-            node.y = -Number(n.rY)+ Number(node.y) + Number(e.offsetY)*1.6
+            //console.log(`${e.offsetX} ${e.offsetY}`)
+            //console.log(nodeXArray)
+            if(!n.rY) return;
+
+            const nx =  anchor(Number(node.x) -Number(n.rx) + Number(e.offsetX)*1.6 + Number(node.w/2),nodeXArray,15) - Number(node.w/2)
+            const ny = anchor(Number(node.y) -Number(n.rY) + Number(e.offsetY)*1.6 + Number(node.h/2),nodeYArray,15) - Number(node.h/2)
+            //防跳跃处理
+            if(nx - node.x >30 || nx - node.x < -30) return;
+            node.x = nx
+            node.y = ny
             n.setAttribute('x',node.x)
-        	n.setAttribute('y',node.y)
+            n.setAttribute('y',node.y)
+            console.log(node.x+ '  '  + node.y )
+
             //renderAll()
         }
 
         n.ondragend  = function(e) {
-            console.log(e)
-            console.log('结束')
-            node.x  = -Number(n.rx) + Number(node.x) + Number(e.offsetX) *1.6
-            node.y = -Number(n.rY)+ Number(node.y) + Number(e.offsetY)*1.6
+            //console.log(e)
+            //console.log('结束')
 
             renderAll()
         }
+
+        n.onkeydown = function(e){
+            if(e.key === "Enter"){
+                const id = "" + new Date().getTime()
+                nodes.push(
+                {
+                    id,
+                    data:{
+                        name:"new",
+                        script:"hello"
+                    },
+                    label:"name",
+                    x:node.x,
+                    y:node.y+100
+                })
+                edges.push(
+                    {
+                        on:node.id,
+                        to:id
+                    }
+                )
+                renderAll()
+            }
+        }
+
 
     }
 
@@ -272,7 +329,7 @@
         const onNode = nodeMap[edge.on]
         const toNode = nodeMap[edge.to]
         let points = getPoints(onNode,toNode)
-        console.log(points)
+        //console.log(points)
         //l.setAttribute('id',"")
         l.setAttribute('points',points)
         l.setAttribute('style',"fill:none;stroke:black;stroke-width:2")
@@ -293,6 +350,7 @@
         const nx = n1.x+n1.w/2
         const ny = n1.y+n1.h/2
 
+        //console.log(n2)
         if(n2.x+n2.w < nx){
             posH = "x"
         }else if(n2.x < nx){
@@ -310,7 +368,7 @@
         }
         const pos = posH + posV
 
-        console.log(pos)
+        //console.log(pos)
         switch (pos) {
             case "db":
                 return toPath({x: n1.x + n1.w ,y: n1.y + n1.h/2 },{x: n2.x + n2.w/2 ,y: n2.y + n2.h + 10},"hv")
@@ -327,7 +385,7 @@
             case "zn":
                 return toPath({x: n1.x + n1.w/2 , y: n1.y + n1.h},{x: n2.x + n2.w/2 , y: n2.y-10 },"vhv")
             case "xn":
-                console.log("xn")
+                //console.log("xn")
                 return toPath({x: n1.x + n1.w/2 , y: n1.y + n1.h},{x: n2.x + n2.w +10, y: n2.y + n2.h/2 },"vh")
             default:
                 return toPath({x: n1.x + n1.w ,y: n1.y + n1.h/2 },{x: n2.x + n2.w/2 ,y: n2.y + n2.h +10},"hv")
@@ -358,13 +416,32 @@
         }
     }
 
-    //自动对齐 预览
+    /**
+     * 对齐
+     */
     function align() {
-    	
     }
 
+    /**
+     * 吸附效应
+     */
+    function anchor(value,fixArray,range) {
+
+        for (const fix of fixArray) {
+            if(value>fix-range && value<fix+range){
+                //console.log("anchor"  + fix)
+                return fix
+            }
+        }
+        return value
+    }
+
+    /**
+     * 缩放
+     * @param argument
+     */
     function zoom(argument) {
-    	// body...
+
     }
 
 </script>
