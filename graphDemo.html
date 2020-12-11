@@ -131,7 +131,7 @@
 
         }
     ]
-    const edges = [
+    var edges = [
         {
             on:"1",
             to:"2"
@@ -151,11 +151,19 @@
 
     let nodeMap = [];
 
+    let sourceNode = {}
+
 
     const container = document.getElementById('container');
     autoLayout(nodes)
     //渲染
     renderAll()
+
+    container.onkeydown =function(e){
+        switch (e.key) {
+            case "Alt":sourceNode = {}
+        }
+    }
 
     function renderAll() {
         container.innerHTML = ""
@@ -253,7 +261,11 @@
         	//console.log(e.offsetX)
         	n.rx = e.offsetX * 1.6
         	n.rY = e.offsetY * 1.6
-        	//n.style.border = '2px solid #200000' 
+
+            if(e.altKey){
+                createEdge(node)
+            }
+
         }
 
         n.onfocus = function(e){
@@ -280,7 +292,7 @@
             node.y = ny
             n.setAttribute('x',node.x)
             n.setAttribute('y',node.y)
-            console.log(node.x+ '  '  + node.y )
+            //console.log(node.x+ '  '  + node.y )
 
             //renderAll()
         }
@@ -293,30 +305,69 @@
         }
 
         n.onkeydown = function(e){
-            if(e.key === "Enter"){
-                const id = "" + new Date().getTime()
-                nodes.push(
-                {
-                    id,
-                    data:{
-                        name:"new",
-                        script:"hello"
-                    },
-                    label:"name",
-                    x:node.x,
-                    y:node.y+100
-                })
-                edges.push(
-                    {
-                        on:node.id,
-                        to:id
-                    }
-                )
-                renderAll()
+            switch (e.key) {
+                case "Enter": createNode(node)
+                    break
+                case "Delete":
+                    //container.removeChild(n)
+                    let index = nodes.indexOf(node)
+                    nodes.splice(index,1)
+                    edges = edges.filter(i=>{
+                        if((i.on !== node.id) && (i.to !== node.id)){
+                            console.log(i)
+                            return i
+                        }
+                    })
+                    console.log(edges)
+                    renderAll()
+                    break
+                default:
+                    break
             }
+
         }
 
+    }
 
+    /**
+     * 创建子节点
+     *
+     */
+    function createNode(node) {
+        const id = "" + new Date().getTime()
+        nodes.push(
+            {
+                id,
+                data:{
+                    name:"new",
+                    script:"hello"
+                },
+                label:"name",
+                x:node.x,
+                y:node.y+100
+            })
+        edges.push(
+            {
+                on:node.id,
+                to:id
+            }
+        )
+        renderAll()
+    }
+
+    /**
+     * 创建关系
+     *
+     */
+    function createEdge(node) {
+        if(sourceNode.id){
+            edges.push({
+                on:sourceNode.id,
+                to:node.id
+            })
+            renderAll()
+        }
+        sourceNode = node
     }
 
     /**
@@ -328,13 +379,15 @@
         const l = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
         const onNode = nodeMap[edge.on]
         const toNode = nodeMap[edge.to]
-        let points = getPoints(onNode,toNode)
-        //console.log(points)
-        //l.setAttribute('id',"")
-        l.setAttribute('points',points)
-        l.setAttribute('style',"fill:none;stroke:black;stroke-width:2")
-        l.setAttribute("marker-end","url(#Triangle)")
-        container.appendChild(l)
+        if(onNode&&toNode){
+            let points = getPoints(onNode,toNode)
+            //console.log(points)
+            //l.setAttribute('id',"")
+            l.setAttribute('points',points)
+            l.setAttribute('style',"fill:none;stroke:black;stroke-width:2")
+            l.setAttribute("marker-end","url(#Triangle)")
+            container.appendChild(l)
+        }
     }
 
     /**
